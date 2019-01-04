@@ -24,8 +24,6 @@ let
       shadow-offset-y = ${toString (elemAt cfg.shadowOffsets 1)};
       shadow-opacity  = ${cfg.shadowOpacity};
       shadow-exclude  = ${toJSON cfg.shadowExclude};
-      no-dock-shadow  = ${toJSON cfg.noDockShadow};
-      no-dnd-shadow   = ${toJSON cfg.noDNDShadow};
     '' + 
     optionalString cfg.blur ''
 
@@ -37,7 +35,6 @@ let
       # opacity
       active-opacity   = ${cfg.activeOpacity};
       inactive-opacity = ${cfg.inactiveOpacity};
-      menu-opacity     = ${cfg.menuOpacity};
       opacity-rule     = ${toJSON cfg.opacityRule};
 
       # other options
@@ -167,22 +164,6 @@ in {
       '';
     };
 
-    noDockShadow = mkOption {
-      type = types.bool;
-      default = true;
-      description = ''
-        Avoid shadow on docks.
-      '';
-    };
-
-    noDNDShadow = mkOption {
-      type = types.bool;
-      default = true;
-      description = ''
-        Avoid shadow on drag-and-drop windows.
-      '';
-    };
-
     activeOpacity = mkOption {
       type = types.str;
       default = "1.0";
@@ -198,15 +179,6 @@ in {
       example = "0.8";
       description = ''
         Opacity of inactive windows.
-      '';
-    };
-
-    menuOpacity = mkOption {
-      type = types.str;
-      default = "1.0";
-      example = "0.8";
-      description = ''
-        Opacity of dropdown and popup menu.
       '';
     };
 
