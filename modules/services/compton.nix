@@ -209,7 +209,7 @@ in {
     };
 
     vSync = mkOption {
-      type = types.str;
+      type = types.either types.str types.bool; # new version makes this bool
       default = "none";
       example = "opengl-swc";
       description = ''
