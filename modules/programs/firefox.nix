@@ -150,6 +150,12 @@ in
         description = "Whether to enable the unfree Adobe Flash plugin.";
       };
 
+      enableFXCastBridge = mkOption {
+        type = types.bool;
+        default = false;
+        description = "Whether to enable to fx_cast plugin (beta).";
+      };
+
       enableGoogleTalk = mkOption {
         type = types.bool;
         default = false;
@@ -226,6 +232,7 @@ in
 
         fcfg = setAttrByPath [browserName] {
           enableAdobeFlash = cfg.enableAdobeFlash;
+          enableFXCastBridge = cfg.enableFXCastBridge;
           enableGoogleTalkPlugin = cfg.enableGoogleTalk;
           icedtea = cfg.enableIcedTea;
         };
