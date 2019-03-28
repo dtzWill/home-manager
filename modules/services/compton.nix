@@ -207,6 +207,13 @@ in {
         Backend to use: <literal>glx</literal> or <literal>xrender</literal>.
       '';
     };
+    experimentalBackends = mkOption {
+      type = types.bool;
+      default = "false";
+      description = ''
+        Use experimental backends.
+      '';
+    };
 
     vSync = mkOption {
       type = types.either types.str types.bool; # new version makes this bool
@@ -270,7 +277,8 @@ in {
       };
 
       Service = {
-        ExecStart = "${cfg.package}/bin/compton --config ${configFile}";
+        ExecStart = "${cfg.package}/bin/compton --config ${configFile}"
+         + lib.optionalString cfg.experimentalBackends " --experimental-backends";
         Restart = "always";
         RestartSec = 3;
       };
