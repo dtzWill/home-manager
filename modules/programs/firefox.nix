@@ -156,12 +156,6 @@ in
         description = "Whether to enable to fx_cast plugin (beta).";
       };
 
-      enableFF2MPV = mkOption {
-        type = types.bool;
-        default = false;
-        description = "Whether to enable to ff2mpv plugin.";
-      };
-
       enableGoogleTalk = mkOption {
         type = types.bool;
         default = false;
@@ -239,7 +233,6 @@ in
         fcfg = setAttrByPath [browserName] {
           enableAdobeFlash = cfg.enableAdobeFlash;
           enableFXCastBridge = cfg.enableFXCastBridge;
-          enableFF2MPV = cfg.enableFF2MPV;
           enableGoogleTalkPlugin = cfg.enableGoogleTalk;
           icedtea = cfg.enableIcedTea;
         };
