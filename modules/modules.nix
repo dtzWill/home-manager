@@ -123,6 +123,7 @@ let
     (loadModule ./services/stalonetray.nix { })
     (loadModule ./services/status-notifier-watcher.nix { })
     (loadModule ./services/syncthing.nix { })
+    (loadModule ./services/rsibreak.nix { })
     (loadModule ./services/taffybar.nix { })
     (loadModule ./services/tahoe-lafs.nix { })
     (loadModule ./services/taskwarrior-sync.nix { condition = hostPlatform.isLinux; })

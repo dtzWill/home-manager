@@ -2,17 +2,19 @@
 
 with lib;
 
-let
+let cfg = config.services.rsibreak;
 
-  cfg = config.services.rsibreak;
-
-in
-
-{
+in {
   options.services.rsibreak = {
 
     enable = mkEnableOption "rsibreak";
 
+    package = mkOption {
+      description = "rsibreak derivation to use.";
+      type = types.package;
+      default = pkgs.rsibreak;
+      defaultText = "pkgs.rsibreak";
+    };
   };
 
   config = mkIf cfg.enable {
@@ -29,7 +31,7 @@ in
 
       Service = {
         Environment = "PATH=${config.home.profileDirectory}/bin";
-        ExecStart = "${pkgs.rsibreak}/bin/rsibreak";
+        ExecStart = "${cfg.package}/bin/rsibreak";
       };
     };
   };
