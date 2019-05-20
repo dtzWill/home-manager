@@ -50,7 +50,7 @@ in
         in {
           Environment = "PATH=/run/wrappers/bin KEYBASE_SYSTEMD=1";
           ExecStartPre = "${pkgs.coreutils}/bin/mkdir -p ${mountPoint}";
-          ExecStart ="${pkgs.kbfs}/bin/kbfsfuse ${toString cfg.extraFlags} ${mountPoint}";
+          ExecStart ="${pkgs.keybase}/bin/kbfsfuse ${toString cfg.extraFlags} ${mountPoint}";
           ExecStopPost = "/run/wrappers/bin/fusermount -u ${mountPoint}";
           Restart = "on-failure";
           PrivateTmp = true;
@@ -61,7 +61,7 @@ in
       };
     };
 
-    home.packages = [ pkgs.kbfs ];
+    home.packages = [ pkgs.keybase ];
     services.keybase.enable = true;
   };
 }
