@@ -48,12 +48,13 @@ in
         let
           mountPoint = "\"%h/${cfg.mountPoint}\"";
         in {
-          Environment = "PATH=/run/wrappers/bin KEYBASE_SYSTEMD=1";
-          ExecStartPre = "${pkgs.coreutils}/bin/mkdir -p ${mountPoint}";
+          Environment = "PATH=/run/wrappers/bin:${pkgs.keybase}/bin:$PATH KEYBASE_SYSTEMD=1";
+          ExecStartPre = "${pkgs.coreutils}/bin/mkdir -p ${mountPoint}"
+           + " && /run/wrappers/bin/fusermount -ul ${mountPoint}";
           ExecStart ="${pkgs.keybase}/bin/kbfsfuse ${toString cfg.extraFlags} ${mountPoint}";
-          ExecStopPost = "/run/wrappers/bin/fusermount -u ${mountPoint}";
+          ExecStopPost = "/run/wrappers/bin/fusermount -ul ${mountPoint}";
           Restart = "on-failure";
-          PrivateTmp = true;
+          #PrivateTmp = true;
         };
 
       Install = {
