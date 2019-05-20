@@ -49,10 +49,10 @@ in
           mountPoint = "\"%h/${cfg.mountPoint}\"";
         in {
           Environment = "PATH=/run/wrappers/bin:${pkgs.keybase}/bin:$PATH KEYBASE_SYSTEMD=1";
-          ExecStartPre = "${pkgs.coreutils}/bin/mkdir -p ${mountPoint}"
-           + " && /run/wrappers/bin/fusermount -ul ${mountPoint}";
+          ExecStartPre = # "${pkgs.coreutils}/bin/mkdir -p ${mountPoint}"
+           "-/run/wrappers/bin/fusermount -uz ${mountPoint}";
           ExecStart ="${pkgs.keybase}/bin/kbfsfuse ${toString cfg.extraFlags} ${mountPoint}";
-          ExecStopPost = "/run/wrappers/bin/fusermount -ul ${mountPoint}";
+          ExecStopPost = "-/run/wrappers/bin/fusermount -uz ${mountPoint}";
           Restart = "on-failure";
           #PrivateTmp = true;
         };
