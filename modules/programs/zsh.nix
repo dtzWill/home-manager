@@ -215,10 +215,22 @@ in
         description = "Environment variables that will be set for zsh session.";
       };
 
+      initExtraBeforeCompInit = mkOption {
+        default = "";
+        type = types.lines;
+        description = "Extra commands that should be added to <filename>.zshrc</filename> before compinit.";
+      };
+
       initExtra = mkOption {
         default = "";
         type = types.lines;
         description = "Extra commands that should be added to <filename>.zshrc</filename>.";
+      };
+
+      envExtra = mkOption {
+        default = "";
+        type = types.lines;
+        description = "Extra commands that should be added to <filename>.zshenv</filename>.";
       };
 
       profileExtra = mkOption {
@@ -287,6 +299,10 @@ in
   };
 
   config = mkIf cfg.enable (mkMerge [
+    (mkIf (cfg.envExtra != "") {
+      home.file."${relToDotDir ".zshenv"}".text = cfg.envExtra;
+    })
+
     (mkIf (cfg.profileExtra != "") {
       home.file."${relToDotDir ".zprofile"}".text = cfg.profileExtra;
     })
@@ -302,7 +318,7 @@ in
     (mkIf cfg.oh-my-zsh.enable {
       home.file."${relToDotDir ".zshenv"}".text = ''
         ZSH="${pkgs.oh-my-zsh}/share/oh-my-zsh";
-        ZSH_CACHE_DIR="''${XDG_CACHE_HOME:-''$HOME/.cache}/oh-my-zsh";
+        ZSH_CACHE_DIR="${config.xdg.cacheHome}/oh-my-zsh";
       '';
     })
 
@@ -341,12 +357,20 @@ in
 
         ${localVarsStr}
 
+        ${cfg.initExtraBeforeCompInit}
+
         ${concatStrings (map (plugin: ''
           path+="$HOME/${pluginsDir}/${plugin.name}"
           fpath+="$HOME/${pluginsDir}/${plugin.name}"
         '') cfg.plugins)}
 
-        ${optionalString cfg.enableCompletion "autoload -U compinit && compinit"}
+        # Oh-My-Zsh calls compinit during initialization,
+        # calling it twice causes sight start up slowdown
+        # as all $fpath entries will be traversed again.
+        ${optionalString (cfg.enableCompletion && !cfg.oh-my-zsh.enable)
+          "autoload -U compinit && compinit"
+        }
+
         ${optionalString cfg.enableAutosuggestions
           "source ${pkgs.zsh-autosuggestions}/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
         }
@@ -396,10 +420,9 @@ in
     }
 
     (mkIf cfg.oh-my-zsh.enable {
-      # Oh-My-Zsh calls compinit during initialization,
-      # calling it twice causes sight start up slowdown
-      # as all $fpath entries will be traversed again.
-      programs.zsh.enableCompletion = mkForce false;
+      # Make sure we create a cache directory since some plugins expect it to exist
+      # See: https://github.com/rycee/home-manager/issues/761
+      home.file."${config.xdg.cacheHome}/oh-my-zsh/.keep".text = "";
     })
 
     (mkIf (cfg.plugins != []) {
