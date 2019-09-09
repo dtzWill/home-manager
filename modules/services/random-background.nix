@@ -6,6 +6,15 @@ let
 
   cfg = config.services.random-background;
 
+  flags = lib.concatStringsSep " " (
+    [
+      "--bg-${cfg.display}"
+      "--no-fehbg"
+      "--randomize"
+    ]
+    ++ lib.optional (!cfg.enableXinerama) "--no-xinerama"
+  );
+
 in
 
 {
@@ -41,6 +50,16 @@ in
           as a duration understood by systemd.
         '';
       };
+
+      enableXinerama = mkOption {
+        default = true;
+        type = types.bool;
+        description = ''
+          Will place a separate image per screen when enabled,
+          otherwise a single image will be stretched across all
+          screens.
+        '';
+      };
     };
   };
 
@@ -56,7 +75,7 @@ in
 
           Service = {
             Type = "oneshot";
-            ExecStart = "${pkgs.feh}/bin/feh --randomize --bg-${cfg.display} ${cfg.imageDirectory}";
+            ExecStart = "${pkgs.feh}/bin/feh ${flags} ${cfg.imageDirectory}";
             IOSchedulingClass = "idle";
           };
 

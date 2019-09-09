@@ -4,7 +4,13 @@ with lib;
 
 {
   config = {
+    home.stateVersion = "19.09";
+
     home.homeDirectory = "/test-home";
+
+    home.keyboard = {
+      options = [ "ctrl:nocaps" "altwin:no_win" ];
+    };
 
     xsession = {
       enable = true;
@@ -15,21 +21,11 @@ with lib;
     };
 
     nmt.script = ''
-      assertFileExists home-files/.xprofile
-      assertFileContent \
-        home-files/.xprofile \
-        ${./basic-xprofile-expected.txt}
-
-      assertFileExists home-files/.xsession
-      assertFileContent \
-        home-files/.xsession \
-        ${./basic-xsession-expected.txt}
-
       assertFileExists home-files/.config/systemd/user/setxkbmap.service
       assertFileContent \
         home-files/.config/systemd/user/setxkbmap.service \
         ${pkgs.substituteAll {
-          src = ./basic-setxkbmap-expected.service;
+          src = ./keyboard-without-layout-expected.service;
           inherit (pkgs.xorg) setxkbmap;
         }}
     '';

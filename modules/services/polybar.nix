@@ -37,7 +37,7 @@ in
       package = mkOption {
         type = types.package;
         default = pkgs.polybar;
-        defaultText = "pkgs.polybar";
+        defaultText = literalExample "pkgs.polybar";
         description = "Polybar package to install.";
         example =  literalExample ''
           pkgs.polybar.override {
@@ -131,6 +131,7 @@ in
             scriptPkg = pkgs.writeShellScriptBin "polybar-start" cfg.script;
           in
             "${scriptPkg}/bin/polybar-start";
+        Restart = "on-failure";
       };
 
       Install = {

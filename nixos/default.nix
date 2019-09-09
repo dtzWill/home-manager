@@ -38,7 +38,7 @@ in
     home-manager = {
       useUserPackages = mkEnableOption ''
         installation of user packages through the
-        <option>users.users.&lt;name?&gt;.packages</option> option.
+        <option>users.users.‹name?›.packages</option> option.
       '';
 
       backupFileExtension = mkOption {
@@ -108,7 +108,7 @@ in
             # The activation script is run by a login shell to make sure
             # that the user is given a sane Nix environment.
             ExecStart = pkgs.writeScript "activate-${username}" ''
-              #! ${pkgs.stdenv.shell} -el
+              #! ${pkgs.runtimeShell} -el
               echo Activating home-manager configuration for ${username}
               exec ${usercfg.home.activationPackage}/activate
             '';

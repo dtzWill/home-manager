@@ -423,6 +423,15 @@ function doHelp() {
     echo "  -n           Do a dry run, only prints what actions would be taken"
     echo "  -h           Print this help"
     echo
+    echo "Options passed on to nix-build(1)"
+    echo
+    echo "  --cores NUM"
+    echo "  --keep-failed"
+    echo "  --keep-going"
+    echo "  --max-jobs NUM"
+    echo "  --option NAME VALUE"
+    echo "  --show-trace"
+    echo
     echo "Commands"
     echo
     echo "  help         Print this help"
@@ -485,11 +494,20 @@ while [[ $# -gt 0 ]]; do
             ;;
         -h|--help)
             doHelp
+            exit 0
             ;;
         -n|--dry-run)
             export DRY_RUN=1
             ;;
-        --show-trace)
+        --option)
+            PASSTHROUGH_OPTS+=("$opt" "$1" "$2")
+            shift 2
+            ;;
+        --max-jobs|--cores)
+            PASSTHROUGH_OPTS+=("$opt" "$1")
+            shift
+            ;;
+        --keep-failed|--keep-going|--show-trace)
             PASSTHROUGH_OPTS+=("$opt")
             ;;
         -v|--verbose)
