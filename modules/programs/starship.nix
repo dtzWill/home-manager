@@ -71,7 +71,7 @@ in
     };
 
     programs.bash.initExtra = mkIf cfg.enableBashIntegration ''
-      if [ -z "$INSIDE_EMACS" ]; then
+      if [[ -z $INSIDE_EMACS ]]; then
         eval "$(${pkgs.starship}/bin/starship init bash)"
       fi
     '';
@@ -83,9 +83,9 @@ in
     '';
 
     programs.fish.shellInit = mkIf cfg.enableFishIntegration ''
-      if [ -z "$INSIDE_EMACS" ]; then
+      if test -z "$INSIDE_EMACS"
         eval (${pkgs.starship}/bin/starship init fish)
-      fi
+      end
     '';
   };
 }
