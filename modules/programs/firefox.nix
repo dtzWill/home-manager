@@ -243,7 +243,7 @@ in
         fcfg = {
           enableAdobeFlash = cfg.enableAdobeFlash;
           enableFXCastBridge = cfg.enableFXCastBridge;
-          #enableRofiTabSwitcher = cfg.enableRofiTabSwitcher;
+          enableRofiTabSwitcher = cfg.enableRofiTabSwitcher;
           enableGoogleTalkPlugin = cfg.enableGoogleTalk;
           icedtea = cfg.enableIcedTea;
         };
