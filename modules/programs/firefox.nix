@@ -163,6 +163,12 @@ in
         description = "Whether to enable to fx_cast plugin (beta).";
       };
 
+      enableRofiTabSwitcher = mkOption {
+        type = types.bool;
+        default = false;
+        description = "Whether to enable to rofi-tab-switcher plugin (beta).";
+      };
+
       enableGoogleTalk = mkOption {
         type = types.bool;
         default = false;
@@ -237,6 +243,7 @@ in
         fcfg = {
           enableAdobeFlash = cfg.enableAdobeFlash;
           enableFXCastBridge = cfg.enableFXCastBridge;
+          #enableRofiTabSwitcher = cfg.enableRofiTabSwitcher;
           enableGoogleTalkPlugin = cfg.enableGoogleTalk;
           icedtea = cfg.enableIcedTea;
         };
