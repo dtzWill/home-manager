@@ -5,9 +5,9 @@ with builtins;
 
 let
 
-  cfg = config.services.compton;
+  cfg = config.services.picom;
 
-  configFile = pkgs.writeText "compton.conf"
+  configFile = pkgs.writeText "picom.conf"
     (optionalString cfg.fade ''
       # fading
       fading = true;
@@ -45,8 +45,8 @@ let
 
 in {
 
-  options.services.compton = {
-    enable = mkEnableOption "Compton X11 compositor";
+  options.services.picom= {
+    enable = mkEnableOption "Picom X11 compositor";
 
     blur = mkOption {
       type = types.bool;
@@ -67,7 +67,7 @@ in {
         List of windows to exclude background blur.
         See the
         <citerefentry>
-          <refentrytitle>compton</refentrytitle>
+          <refentrytitle>picom</refentrytitle>
           <manvolnum>1</manvolnum>
         </citerefentry>
         man page for more examples.
@@ -112,7 +112,7 @@ in {
         List of conditions of windows that should not be faded.
         See the
         <citerefentry>
-          <refentrytitle>compton</refentrytitle>
+          <refentrytitle>picom</refentrytitle>
           <manvolnum>1</manvolnum>
         </citerefentry>
         man page for more examples.
@@ -157,7 +157,7 @@ in {
         List of conditions of windows that should have no shadow.
         See the
         <citerefentry>
-          <refentrytitle>compton</refentrytitle>
+          <refentrytitle>picom</refentrytitle>
           <manvolnum>1</manvolnum>
         </citerefentry>
         man page for more examples.
@@ -193,7 +193,7 @@ in {
         List of opacity rules.
         See the
         <citerefentry>
-          <refentrytitle>compton</refentrytitle>
+          <refentrytitle>picom</refentrytitle>
           <manvolnum>1</manvolnum>
         </citerefentry>
         man page for more examples.
@@ -223,7 +223,7 @@ in {
         Enable vertical synchronization using the specified method.
         See the
         <citerefentry>
-          <refentrytitle>compton</refentrytitle>
+          <refentrytitle>picom</refentrytitle>
           <manvolnum>1</manvolnum>
         </citerefentry>
         man page for available methods.
@@ -241,11 +241,11 @@ in {
 
     package = mkOption {
       type = types.package;
-      default = pkgs.compton;
-      defaultText = literalExample "pkgs.compton";
-      example = literalExample "pkgs.compton";
+      default = pkgs.picom;
+      defaultText = literalExample "pkgs.picom";
+      example = literalExample "pkgs.picom";
       description = ''
-        Compton derivation to use.
+        Picom derivation to use.
       '';
     };
 
@@ -257,7 +257,7 @@ in {
         dbe = true;
       '';
       description = ''
-        Additional Compton configuration.
+        Additional picom configuration.
       '';
     };
   };
@@ -265,9 +265,9 @@ in {
   config = mkIf cfg.enable {
     home.packages = [ cfg.package ];
 
-    systemd.user.services.compton = {
+    systemd.user.services.picom = {
       Unit = {
-        Description = "Compton X11 compositor";
+        Description = "Picom X11 compositor";
         After = [ "graphical-session-pre.target" ];
         PartOf = [ "graphical-session.target" ];
       };
@@ -277,7 +277,7 @@ in {
       };
 
       Service = {
-        ExecStart = "${cfg.package}/bin/compton --config ${configFile}"
+        ExecStart = "${cfg.package}/bin/picom --config ${configFile}"
          + lib.optionalString cfg.experimentalBackends " --experimental-backends";
         Restart = "always";
         RestartSec = 3;
