@@ -20,9 +20,9 @@ let
     sendmail = astroid.sendMailCommand;
     additional_sent_tags = "";
     default = boolOpt primary;
-    save_drafts_to = folders.drafts;
+    save_drafts_to = "${maildir.absPath}/${folders.drafts}";
     save_sent = "true";
-    save_sent_to = folders.sent;
+    save_sent_to = "${maildir.absPath}/${folders.sent}";
     select_query = "";
   }
   // optionalAttrs (signature.showSignature != "none") {
@@ -106,14 +106,6 @@ in
   };
 
   config = mkIf cfg.enable {
-    assertions = [
-      {
-        assertion = config.programs.notmuch.maildir.synchronizeFlags;
-        message = "The astroid module requires"
-          + " 'programs.notmuch.maildir.synchronizeFlags = true'.";
-      }
-    ];
-
     home.packages =  [ pkgs.astroid ];
 
     xdg.configFile."astroid/config".source =
