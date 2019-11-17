@@ -209,21 +209,21 @@ in {
     };
     experimentalBackends = mkOption {
       type = types.bool;
-      default = "false";
+      default = false;
       description = ''
         Use experimental backends.
       '';
     };
     dbus = mkOption {
       type = types.bool;
-      default = "false";
+      default = false;
       description = ''
         Enable remote control via D-BUS.
       '';
     };
     maxBrightness = mkOption {
-      type = types.double ;
-      default = "1.0";
+      type = types.float;
+      default = 1.0;
       description = ''
         Dim bright windows so their brightness doesn’t exceed this set value, 1.0 disables.
       '';
@@ -291,10 +291,10 @@ in {
       };
 
       Service = {
-        ExecStart = lib.concatStringSep " " ([
+        ExecStart = lib.concatStringsSep " " ([
           "${cfg.package}/bin/picom"
           "--config" configFile
-          "--max-brightness" maxBrightness
+          "--max-brightness" (builtins.toString cfg.maxBrightness)
         ]
         ++ lib.optional cfg.experimentalBackends "--experimental-backends"
         ++ lib.optional cfg.dbus "--dbus"
