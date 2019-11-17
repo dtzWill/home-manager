@@ -214,6 +214,20 @@ in {
         Use experimental backends.
       '';
     };
+    dbus = mkOption {
+      type = types.bool;
+      default = "false";
+      description = ''
+        Enable remote control via D-BUS.
+      '';
+    };
+    maxBrightness = mkOption {
+      type = types.double ;
+      default = "1.0";
+      description = ''
+        Dim bright windows so their brightness doesn’t exceed this set value, 1.0 disables.
+      '';
+    };
 
     vSync = mkOption {
       type = types.either types.str types.bool; # new version makes this bool
@@ -277,8 +291,14 @@ in {
       };
 
       Service = {
-        ExecStart = "${cfg.package}/bin/picom --config ${configFile}"
-         + lib.optionalString cfg.experimentalBackends " --experimental-backends";
+        ExecStart = lib.concatStringSep " " ([
+          "${cfg.package}/bin/picom"
+          "--config" configFile
+          "--max-brightness" maxBrightness
+        ]
+        ++ lib.optional cfg.experimentalBackends "--experimental-backends"
+        ++ lib.optional cfg.dbus "--dbus"
+        );
         Restart = "always";
         RestartSec = 3;
       };
