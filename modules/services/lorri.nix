@@ -34,7 +34,7 @@ in
           ProtectHome = "read-only";
           Restart = "on-failure";
           Environment =
-            let path = with pkgs; makeSearchPath "bin" [ nix gnutar gzip ];
+            let path = with pkgs; makeSearchPath "bin" [ nix gnutar gzip git ];
             in "PATH=${path}";
         };
       };
