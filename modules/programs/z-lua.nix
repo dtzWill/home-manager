@@ -12,6 +12,7 @@ let
     zf = "z -I";         # use fzf to select in multiple matches
     zb = "z -b";         # quickly cd to the parent directory
     zh = "z -I -t .";    # fzf
+    zzc = "zz -c";
   };
 
 in
