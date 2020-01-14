@@ -6,6 +6,7 @@ let
 
   cfg = config.programs.z-lua;
 
+  # TODO: Just let z-lua define these? Or set _ZL_NO_ALIASES so it doesn't try?
   aliases = {
     zz = "z -c";         # restrict matches to subdirs of $PWD
     zi = "z -i";         # cd with interactive selection
