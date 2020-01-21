@@ -14,6 +14,7 @@ let
         ({ always = "t"; auto = "s"; never = "T"; }.${cfg.tray})
       ]
       ++ optional config.xsession.preferStatusNotifierItems "--appindicator"
+      ++ [ "-f" "${pkgs.xdg_utils}/bin/xdg-open" ] # TODO: make option
     );
 
 in
