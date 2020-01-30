@@ -1295,6 +1295,29 @@ in
           A new module is available: 'services.cbatticon'.
         '';
       }
+
+      {
+        time = "2020-01-26T12:42:33+00:00";
+        condition = hostPlatform.isLinux;
+        message = ''
+          A new module is available: 'xsession.windowManager.bspwm'.
+        '';
+      }
+
+      {
+        time = "2020-01-26T12:49:40+00:00";
+        condition = hostPlatform.isLinux;
+        message = ''
+          A new module is available: 'services.grobi'.
+        '';
+      }
+
+      {
+        time = "2020-01-26T19:37:57+00:00";
+        message = ''
+          A new module is available: 'programs.neomutt'.
+        '';
+      }
     ];
   };
 }
