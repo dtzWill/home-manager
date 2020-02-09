@@ -2,7 +2,9 @@
 
 with lib;
 
-let cfg = config.services.rsibreak;
+let
+
+  cfg = config.services.rsibreak;
 
 in {
   options.services.rsibreak = {
@@ -25,9 +27,7 @@ in {
         PartOf = [ "graphical-session.target" ];
       };
 
-      Install = {
-        WantedBy = [ "graphical-session.target" ];
-      };
+      Install = { WantedBy = [ "graphical-session.target" ]; };
 
       Service = {
         Environment = "PATH=${config.home.profileDirectory}/bin";
