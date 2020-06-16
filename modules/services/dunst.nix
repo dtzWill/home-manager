@@ -45,7 +45,7 @@ let
   };
 
   hicolorTheme = {
-    package = pkgs.hicolor_icon_theme;
+    package = pkgs.hicolor-icon-theme;
     name = "hicolor";
     size = "32x32";
   };
@@ -89,6 +89,8 @@ in {
 
   config = mkIf cfg.enable (mkMerge [
     {
+      home.packages = [ (getOutput "man" pkgs.dunst) ];
+
       xdg.dataFile."dbus-1/services/org.knopwob.dunst.service".source =
         "${pkgs.dunst}/share/dbus-1/services/org.knopwob.dunst.service";
 

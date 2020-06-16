@@ -6,8 +6,8 @@ using the [Nix][] package manager together with the Nix libraries
 found in [Nixpkgs][]. Before attempting to use Home Manager please
 read the warning below.
 
-For a more systematic overview of all the options Home Manager
-provides please see the [Home Manager manual][configuration options].
+For a more systematic overview of Home Manager and its available
+options, please see the [Home Manager manual][manual].
 
 Words of warning
 ----------------
@@ -22,7 +22,7 @@ will write to your dconf store and cannot tell whether a configuration
 that it is about to be overwrite was from a previous Home Manager
 generation or from manual configuration.
 
-Home Manager targets [NixOS][] unstable and NixOS version 19.09 (the
+Home Manager targets [NixOS][] unstable and NixOS version 20.03 (the
 current stable version), it may or may not work on other Linux
 distributions and NixOS versions.
 
@@ -46,21 +46,12 @@ Installation
 
 Currently the easiest way to install Home Manager is as follows:
 
-1.  Make sure you have a working Nix installation. If you are not
-    using NixOS then you may here have to run
-
-    ```console
-    $ mkdir -m 0755 -p /nix/var/nix/{profiles,gcroots}/per-user/$USER
-    ```
-
-    since Home Manager uses these directories to manage your profile
-    generations. On NixOS these should already be available.
-
-    Also make sure that your user is able to build and install Nix
-    packages. For example, you should be able to successfully run a
-    command like `nix-instantiate '<nixpkgs>' -A hello` without having
-    to switch to the root user. For a multi-user install of Nix this
-    means that your user must be covered by the
+1.  Make sure you have a working Nix installation. Specifically, make
+    sure that your user is able to build and install Nix packages. For
+    example, you should be able to successfully run a command like
+    `nix-instantiate '<nixpkgs>' -A hello` without having to switch to
+    the root user. For a multi-user install of Nix this means that
+    your user must be covered by the
     [`allowed-users`][nixAllowedUsers] Nix option. On NixOS you can
     control this option using the
     [`nix.allowedUsers`][nixosAllowedUsers] system option.
@@ -75,11 +66,11 @@ Currently the easiest way to install Home Manager is as follows:
     if you are following Nixpkgs master or an unstable channel and
 
     ```console
-    $ nix-channel --add https://github.com/rycee/home-manager/archive/release-19.09.tar.gz home-manager
+    $ nix-channel --add https://github.com/rycee/home-manager/archive/release-20.03.tar.gz home-manager
     $ nix-channel --update
     ```
 
-    if you follow a Nixpkgs version 19.09 channel.
+    if you follow a Nixpkgs version 20.03 channel.
 
     On NixOS you may need to log out and back in for the channel to
     become available. On non-NixOS you may have to add
@@ -158,7 +149,13 @@ To satisfy the above setup we should elaborate the
 
   programs.firefox = {
     enable = true;
-    enableIcedTea = true;
+    profiles = {
+      myprofile = {
+        settings = {
+          "general.smoothScroll" = false;
+        };
+      };
+    };
   };
 
   services.gpg-agent = {
@@ -303,6 +300,17 @@ in your system configuration and
 
 in your Home Manager configuration.
 
+Releases
+--------
+
+Home Manager is developed against `nixpkgs-unstable` branch, which
+often causes it to contain tweaks for changes/packages not yet
+released in stable NixOS. To avoid breaking users' configurations,
+Home Manager is released in branches corresponding to NixOS releases
+(e.g. `release-20.03`). These branches get fixes, but usually not new
+modules. If you need a module to be backported, then feel free to open
+an issue.
+
 [Bash]: https://www.gnu.org/software/bash/
 [Nix]: https://nixos.org/nix/
 [NixOS]: https://nixos.org/
@@ -310,6 +318,7 @@ in your Home Manager configuration.
 [nixAllowedUsers]: https://nixos.org/nix/manual/#conf-allowed-users
 [nixosAllowedUsers]: https://nixos.org/nixos/manual/options.html#opt-nix.allowedUsers
 [Z shell]: http://zsh.sourceforge.net/
+[manual]: https://rycee.gitlab.io/home-manager/
 [configuration options]: https://rycee.gitlab.io/home-manager/options.html
 [#home-manager]: https://webchat.freenode.net/?url=irc%3A%2F%2Firc.freenode.net%2Fhome-manager
 [freenode]: https://freenode.net/

@@ -6,11 +6,6 @@ let
 
   cfg = config.programs.gnome-terminal;
 
-  vteInitStr = ''
-    # gnome-terminal: Show current directory in the terminal window title.
-    . ${pkgs.gnome3.vte}/etc/profile.d/vte.sh
-  '';
-
   backForeSubModule = types.submodule ({ ... }: {
     options = {
       foreground = mkOption {
@@ -81,6 +76,12 @@ let
         description = "The terminal colors, null to use system default.";
       };
 
+      cursorBlinkMode = mkOption {
+        default = "system";
+        type = types.enum [ "system" "on" "off" ];
+        description = "The cursor blink mode.";
+      };
+
       cursorShape = mkOption {
         default = "block";
         type = types.enum [ "block" "ibeam" "underline" ];
@@ -130,6 +131,7 @@ let
       scrollbar-policy = if pcfg.showScrollbar then "always" else "never";
       scrollback-lines = pcfg.scrollbackLines;
       cursor-shape = pcfg.cursorShape;
+      cursor-blink-mode = pcfg.cursorBlinkMode;
     } // (if (pcfg.font == null) then {
       use-system-font = true;
     } else {
@@ -179,7 +181,7 @@ in {
 
       themeVariant = mkOption {
         default = "default";
-        type = types.enum [ "default" "light" "dark" ];
+        type = types.enum [ "default" "light" "dark" "system" ];
         description = "The theme variation to request";
       };
 
@@ -192,7 +194,7 @@ in {
   };
 
   config = mkIf cfg.enable {
-    home.packages = [ pkgs.gnome3.gnome_terminal ];
+    home.packages = [ pkgs.gnome3.gnome-terminal ];
 
     dconf.settings = let dconfPath = "org/gnome/terminal/legacy";
     in {
@@ -210,7 +212,7 @@ in {
     (n: v: nameValuePair ("${dconfPath}/profiles:/:${n}") (buildProfileSet v))
     cfg.profile;
 
-    programs.bash.initExtra = mkBefore vteInitStr;
-    programs.zsh.initExtra = vteInitStr;
+    programs.bash.enableVteIntegration = true;
+    programs.zsh.enableVteIntegration = true;
   };
 }

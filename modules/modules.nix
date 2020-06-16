@@ -5,6 +5,9 @@
 
   # Whether to enable module type checking.
 , check ? true
+
+# If disabled, the pkgs attribute passed to this function is used instead.
+, useNixpkgsModule ? true
 }:
 
 with lib;
@@ -12,8 +15,6 @@ with lib;
 let
 
   hostPlatform = pkgs.stdenv.hostPlatform;
-
-  checkPlatform = any (meta.platformMatch pkgs.stdenv.hostPlatform);
 
   loadModule = file: { condition ? true }: {
     inherit file condition;
@@ -25,23 +26,28 @@ let
     (loadModule ./home-environment.nix { })
     (loadModule ./manual.nix { })
     (loadModule ./misc/dconf.nix { })
+    (loadModule ./misc/debug.nix { })
     (loadModule ./misc/fontconfig.nix { })
     (loadModule ./misc/gtk.nix { })
     (loadModule ./misc/lib.nix { })
     (loadModule ./misc/news.nix { })
-    (loadModule ./misc/nixpkgs.nix { })
+    (loadModule ./misc/nixpkgs.nix { condition = useNixpkgsModule; })
     (loadModule ./misc/numlock.nix { condition = hostPlatform.isLinux; })
     (loadModule ./misc/pam.nix { })
     (loadModule ./misc/qt.nix { })
     (loadModule ./misc/submodule-support.nix { })
+    (loadModule ./misc/tmpfiles.nix { condition = hostPlatform.isLinux; })
     (loadModule ./misc/version.nix { })
+    (loadModule ./misc/vte.nix { })
     (loadModule ./misc/xdg-mime.nix { condition = hostPlatform.isLinux; })
     (loadModule ./misc/xdg-mime-apps.nix { condition = hostPlatform.isLinux; })
     (loadModule ./misc/xdg-user-dirs.nix { condition = hostPlatform.isLinux; })
     (loadModule ./misc/xdg.nix { })
+    (loadModule ./programs/abook.nix { condition = hostPlatform.isLinux; })
     (loadModule ./programs/afew.nix { })
     (loadModule ./programs/alacritty.nix { })
     (loadModule ./programs/alot.nix { })
+    (loadModule ./programs/aria2.nix { })
     (loadModule ./programs/astroid.nix { })
     (loadModule ./programs/autorandr.nix { })
     (loadModule ./programs/bash.nix { })
@@ -51,6 +57,7 @@ let
     (loadModule ./programs/browserpass.nix { })
     (loadModule ./programs/chromium.nix { condition = hostPlatform.isLinux; })
     (loadModule ./programs/command-not-found/command-not-found.nix { })
+    (loadModule ./programs/dircolors.nix { })
     (loadModule ./programs/direnv.nix { })
     (loadModule ./programs/eclipse.nix { })
     (loadModule ./programs/emacs.nix { })
@@ -65,12 +72,16 @@ let
     (loadModule ./programs/gpg.nix { })
     (loadModule ./programs/home-manager.nix { })
     (loadModule ./programs/htop.nix { })
+    (loadModule ./programs/i3status.nix { })
     (loadModule ./programs/info.nix { })
     (loadModule ./programs/irssi.nix { })
+    (loadModule ./programs/lieer.nix { })
     (loadModule ./programs/jq.nix { })
     (loadModule ./programs/kakoune.nix { })
     (loadModule ./programs/keychain.nix { })
+    (loadModule ./programs/kitty.nix { })
     (loadModule ./programs/lesspipe.nix { })
+    (loadModule ./programs/lf.nix { })
     (loadModule ./programs/lsd.nix { })
     (loadModule ./programs/man.nix { })
     (loadModule ./programs/matplotlib.nix { })
@@ -89,6 +100,8 @@ let
     (loadModule ./programs/password-store.nix { })
     (loadModule ./programs/pazi.nix { })
     (loadModule ./programs/pidgin.nix { })
+    (loadModule ./programs/powerline-go.nix { })
+    (loadModule ./programs/qutebrowser.nix { })
     (loadModule ./programs/readline.nix { })
     (loadModule ./programs/rofi.nix { })
     (loadModule ./programs/rtorrent.nix { })
@@ -105,13 +118,18 @@ let
     (loadModule ./programs/vscode/haskell.nix { })
     (loadModule ./programs/z-lua.nix { })
     (loadModule ./programs/zathura.nix { })
+    (loadModule ./programs/zoxide.nix { })
+    (loadModule ./programs/zplug.nix { })
     (loadModule ./programs/zsh.nix { })
     (loadModule ./services/blueman-applet.nix { })
     (loadModule ./services/cbatticon.nix { condition = hostPlatform.isLinux; })
+    (loadModule ./services/clipmenu.nix { condition = hostPlatform.isLinux; })
+    (loadModule ./services/compton.nix { })
     (loadModule ./services/dunst.nix { })
     (loadModule ./services/dwm-status.nix { condition = hostPlatform.isLinux; })
     (loadModule ./services/emacs.nix { condition = hostPlatform.isLinux; })
     (loadModule ./services/flameshot.nix { })
+    (loadModule ./services/fluidsynth.nix { condition = hostPlatform.isLinux; })
     (loadModule ./services/getmail.nix { condition = hostPlatform.isLinux; })
     (loadModule ./services/gnome-keyring.nix { })
     (loadModule ./services/gpg-agent.nix { })
@@ -122,7 +140,10 @@ let
     (loadModule ./services/kdeconnect.nix { })
     (loadModule ./services/keepassx.nix { })
     # (loadModule ./services/keybase.nix { })
+    (loadModule ./services/keynav.nix { condition = hostPlatform.isLinux; })
+    (loadModule ./services/lieer.nix { condition = hostPlatform.isLinux; })
     (loadModule ./services/lorri.nix { condition = hostPlatform.isLinux; })
+    (loadModule ./services/mako.nix { condition = hostPlatform.isLinux; })
     (loadModule ./services/mbsync.nix { })
     (loadModule ./services/mpd.nix { })
     (loadModule ./services/mpdris2.nix { condition = hostPlatform.isLinux; })
@@ -135,6 +156,7 @@ let
     (loadModule ./services/pasystray.nix { })
     (loadModule ./services/picom.nix { })
     (loadModule ./services/polybar.nix { })
+    (loadModule ./services/pulseeffects.nix { condition = hostPlatform.isLinux; })
     (loadModule ./services/random-background.nix { })
     (loadModule ./services/redshift.nix { })
     (loadModule ./services/rsibreak.nix { condition = hostPlatform.isLinux; })
@@ -153,13 +175,15 @@ let
     (loadModule ./services/unison.nix { condition = hostPlatform.isLinux; })
     (loadModule ./services/window-managers/awesome.nix { })
     (loadModule ./services/window-managers/bspwm/default.nix { condition = hostPlatform.isLinux; })
-    (loadModule ./services/window-managers/i3.nix { })
+    (loadModule ./services/window-managers/i3-sway/i3.nix { })
+    (loadModule ./services/window-managers/i3-sway/sway.nix { condition = hostPlatform.isLinux; })
     (loadModule ./services/window-managers/xmonad.nix { })
     (loadModule ./services/xcape.nix { condition = hostPlatform.isLinux; })
     (loadModule ./services/xembed-sni-proxy.nix { condition = hostPlatform.isLinux; })
     (loadModule ./services/xscreensaver.nix { })
     (loadModule ./services/xsuspender.nix { condition = hostPlatform.isLinux; })
     (loadModule ./systemd.nix { })
+    (loadModule ./targets/generic-linux.nix { condition = hostPlatform.isLinux; })
     (loadModule ./xcursor.nix { })
     (loadModule ./xresources.nix { })
     (loadModule ./xsession.nix { })
@@ -170,11 +194,14 @@ let
   modules = map (getAttr "file") (filter (getAttr "condition") allModules);
 
   pkgsModule = {
-    config._module.args.baseModules = modules;
-    config._module.args.pkgs = lib.mkDefault pkgs;
-    config._module.check = check;
-    config.lib = lib.hm;
-    config.nixpkgs.system = mkDefault pkgs.system;
+    config = {
+      _module.args.baseModules = modules;
+      _module.args.pkgs = lib.mkDefault pkgs;
+      _module.check = check;
+      lib = lib.hm;
+    } // optionalAttrs useNixpkgsModule {
+      nixpkgs.system = mkDefault pkgs.system;
+    };
   };
 
 in

@@ -16,11 +16,35 @@ let
         '';
       };
 
-      address = mkOption {
+      ctype = mkOption {
         default = null;
         type = types.nullOr types.str;
         description = ''
-          The language to use for addresses.
+          Character classification category.
+        '';
+      };
+
+      numeric = mkOption {
+        default = null;
+        type = types.nullOr types.str;
+        description = ''
+          The language to use for numerical values.
+        '';
+      };
+
+      time = mkOption {
+        default = null;
+        type = types.nullOr types.str;
+        description = ''
+          The language to use for formatting times.
+        '';
+      };
+
+      collate = mkOption {
+        default = null;
+        type = types.nullOr types.str;
+        description = ''
+          The language to use for collation (alphabetical ordering).
         '';
       };
 
@@ -32,6 +56,14 @@ let
         '';
       };
 
+      messages = mkOption {
+        default = null;
+        type = types.nullOr types.str;
+        description = ''
+          The language to use for messages, application UI languages, etc.
+        '';
+      };
+
       paper = mkOption {
         default = null;
         type = types.nullOr types.str;
@@ -40,13 +72,38 @@ let
         '';
       };
 
-      time = mkOption {
+      name = mkOption {
         default = null;
         type = types.nullOr types.str;
         description = ''
-          The language to use for formatting times.
+          The language to use for personal names.
         '';
       };
+
+      address = mkOption {
+        default = null;
+        type = types.nullOr types.str;
+        description = ''
+          The language to use for addresses.
+        '';
+      };
+
+      telephone = mkOption {
+        default = null;
+        type = types.nullOr types.str;
+        description = ''
+          The language to use for telephone numbers.
+        '';
+      };
+
+      measurement = mkOption {
+        default = null;
+        type = types.nullOr types.str;
+        description = ''
+          The language to use for measurement values.
+        '';
+      };
+
     };
   };
 
@@ -125,14 +182,22 @@ in
   options = {
     home.username = mkOption {
       type = types.str;
-      defaultText = "$USER";
+      defaultText = literalExample ''
+        "$USER"   for state version < 20.09,
+        undefined for state version ≥ 20.09
+      '';
+      example = "jane.doe";
       description = "The user's username.";
     };
 
     home.homeDirectory = mkOption {
       type = types.path;
-      defaultText = "$HOME";
-      description = "The user's home directory.";
+      defaultText = literalExample ''
+        "$HOME"   for state version < 20.09,
+        undefined for state version ≥ 20.09
+      '';
+      example = "/home/jane.doe";
+      description = "The user's home directory. Must be an absolute path.";
     };
 
     home.profileDirectory = mkOption {
@@ -198,6 +263,16 @@ in
       '';
     };
 
+    home.sessionVariablesExtra = mkOption {
+      type = types.lines;
+      default = "";
+      internal = true;
+      description = ''
+        Extra configuration to add to the
+        <filename>hm-session-vars.sh</filename> file.
+      '';
+    };
+
     home.packages = mkOption {
       type = types.listOf types.package;
       default = [];
@@ -226,8 +301,8 @@ in
       type = types.bool;
       description = ''
         Whether the activation script should start with an empty
-        <envvar>PATH</envvar> variable. When <literal>false</literal>
-        then the user's <envvar>PATH</envvar> will be used.
+        <envar>PATH</envar> variable. When <literal>false</literal>
+        then the user's <envar>PATH</envar> will be used.
       '';
     };
 
@@ -317,8 +392,12 @@ in
       }
     ];
 
-    home.username = mkDefault (builtins.getEnv "USER");
-    home.homeDirectory = mkDefault (builtins.getEnv "HOME");
+    home.username =
+      mkIf (versionOlder config.home.stateVersion "20.09")
+        (mkDefault (builtins.getEnv "USER"));
+    home.homeDirectory =
+      mkIf (versionOlder config.home.stateVersion "20.09")
+        (mkDefault (builtins.getEnv "HOME"));
 
     home.profileDirectory =
       if config.submoduleSupport.enable
@@ -332,13 +411,27 @@ in
       in
         (maybeSet "LANG" cfg.language.base)
         //
-        (maybeSet "LC_ADDRESS" cfg.language.address)
+        (maybeSet "LC_CTYPE" cfg.language.ctype)
+        //
+        (maybeSet "LC_NUMERIC" cfg.language.numeric)
+        //
+        (maybeSet "LC_TIME" cfg.language.time)
+        //
+        (maybeSet "LC_COLLATE" cfg.language.collate)
         //
         (maybeSet "LC_MONETARY" cfg.language.monetary)
         //
+        (maybeSet "LC_MESSAGES" cfg.language.messages)
+        //
         (maybeSet "LC_PAPER" cfg.language.paper)
         //
-        (maybeSet "LC_TIME" cfg.language.time);
+        (maybeSet "LC_NAME" cfg.language.name)
+        //
+        (maybeSet "LC_ADDRESS" cfg.language.address)
+        //
+        (maybeSet "LC_TELEPHONE" cfg.language.telephone)
+        //
+        (maybeSet "LC_MEASUREMENT" cfg.language.measurement);
 
     home.packages = [
       # Provide a file holding all session variables.
@@ -352,7 +445,7 @@ in
             export __HM_SESS_VARS_SOURCED=1
 
             ${config.lib.shell.exportAll cfg.sessionVariables}
-          '';
+          '' + cfg.sessionVariablesExtra;
         }
       )
     ];

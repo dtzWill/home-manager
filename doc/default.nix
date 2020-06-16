@@ -1,6 +1,7 @@
-{
+{ pkgs
+
 # Note, this should be "the standard library" + HM extensions.
-lib, pkgs }:
+, lib ? import ../modules/lib/stdlib-extended.nix pkgs.lib }:
 
 let
 
@@ -8,8 +9,8 @@ let
     name = "nmd";
     owner = "rycee";
     repo = "nmd";
-    rev = "b437898c2b137c39d9c5f9a1cf62ec630f14d9fc";
-    sha256 = "18j1nh53cfpjpdiwn99x9kqpvr0s7hwngyc0a93xf4sg88ww93lq";
+    rev = "2398aa79ab12aa7aba14bc3b08a6efd38ebabdc5";
+    sha256 = "0yxb48afvccn8vvpkykzcr4q1rgv8jsijqncia7a5ffzshcrwrnh";
   };
 
   nmd = import nmdSrc { inherit lib pkgs; };
@@ -41,6 +42,7 @@ let
     pathName = "home-manager";
     modulesDocs = [ hmModulesDocs ];
     documentsDirectory = ./.;
+    documentType = "book";
     chunkToc = ''
       <toc>
         <d:tocentry xmlns:d="http://docbook.org/ns/docbook" linkend="book-home-manager-manual"><?dbhtml filename="index.html"?>

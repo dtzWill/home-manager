@@ -56,7 +56,7 @@ let
     };
   };
 
-  matchBlockModule = types.submodule ({ name, ... }: {
+  matchBlockModule = types.submodule ({ dagName, ... }: {
     options = {
       host = mkOption {
         type = types.str;
@@ -141,6 +141,15 @@ let
         default = 0;
         description =
           "Set timeout in seconds after which response will be requested.";
+      };
+
+      serverAliveCountMax = mkOption {
+        type = types.ints.positive;
+        default = 3;
+        description = ''
+          Sets the number of server alive messages which may be sent
+          without SSH receiving any messages back from the server.
+        '';
       };
 
       sendEnv = mkOption {
@@ -266,7 +275,7 @@ let
       };
     };
 
-    config.host = mkDefault name;
+    config.host = mkDefault dagName;
   });
 
   matchBlockStr = cf: concatStringsSep "\n" (
@@ -281,7 +290,9 @@ let
     ++ optional (cf.addressFamily != null)   "  AddressFamily ${cf.addressFamily}"
     ++ optional (cf.sendEnv != [])           "  SendEnv ${unwords cf.sendEnv}"
     ++ optional (cf.serverAliveInterval != 0)
-         "  ServerAliveInterval ${toString cf.serverAliveInterval}"
+      "  ServerAliveInterval ${toString cf.serverAliveInterval}"
+    ++ optional (cf.serverAliveCountMax != 3)
+      "  ServerAliveCountMax ${toString cf.serverAliveCountMax}"
     ++ optional (cf.compression != null)     "  Compression ${yn cf.compression}"
     ++ optional (!cf.checkHostIP)            "  CheckHostIP no"
     ++ optional (cf.proxyCommand != null)    "  ProxyCommand ${cf.proxyCommand}"
@@ -322,6 +333,15 @@ in
       default = 0;
       description = ''
         Set default timeout in seconds after which response will be requested.
+      '';
+    };
+
+    serverAliveCountMax = mkOption {
+      type = types.ints.positive;
+      default = 3;
+      description = ''
+        Sets the default number of server alive messages which may be
+        sent without SSH receiving any messages back from the server.
       '';
     };
 
@@ -392,7 +412,7 @@ in
     };
 
     matchBlocks = mkOption {
-      type = types.loaOf matchBlockModule;
+      type = hm.types.listOrDagOf matchBlockModule;
       default = {};
       example = literalExample ''
         {
@@ -400,7 +420,7 @@ in
             hostname = "example.com";
             user = "john";
           };
-          foo = {
+          foo = lib.hm.dag.entryBefore ["john.example.com"] {
             hostname = "example.com";
             identityFile = "/home/john/.ssh/foo_rsa";
           };
@@ -408,11 +428,15 @@ in
       '';
       description = ''
         Specify per-host settings. Note, if the order of rules matter
-        then this must be a list. See
+        then use the DAG functions to express the dependencies as
+        shown in the example.
+        </para><para>
+        See
         <citerefentry>
           <refentrytitle>ssh_config</refentrytitle>
           <manvolnum>5</manvolnum>
-        </citerefentry>.
+        </citerefentry>
+        for more information.
       '';
     };
   };
@@ -432,23 +456,30 @@ in
             checkLocal = block: any' checkBindAndHost block.localForwards;
             checkRemote = block: any' checkBindAndHost block.remoteForwards;
             checkMatchBlock = block: all (fn: fn block) [ checkLocal checkRemote checkDynamic ];
-          in any' checkMatchBlock (builtins.attrValues cfg.matchBlocks);
+          in any' checkMatchBlock (map (block: block.data) (builtins.attrValues cfg.matchBlocks));
         message = "Forwarded paths cannot have ports.";
       }
     ];
 
-    home.file.".ssh/config".text = ''
+    home.file.".ssh/config".text =
+      let
+        sortedMatchBlocks = hm.dag.topoSort cfg.matchBlocks;
+        sortedMatchBlocksStr = builtins.toJSON sortedMatchBlocks;
+        matchBlocks =
+          if sortedMatchBlocks ? result
+          then sortedMatchBlocks.result
+          else abort "Dependency cycle in SSH match blocks: ${sortedMatchBlocksStr}";
+      in ''
       ${concatStringsSep "\n" (
         mapAttrsToList (n: v: "${n} ${v}") cfg.extraOptionOverrides)}
 
-      ${concatStringsSep "\n\n" (
-        map matchBlockStr (
-        builtins.attrValues cfg.matchBlocks))}
+      ${concatStringsSep "\n\n" (map (block: matchBlockStr block.data) matchBlocks)}
 
       Host *
         ForwardAgent ${yn cfg.forwardAgent}
         Compression ${yn cfg.compression}
         ServerAliveInterval ${toString cfg.serverAliveInterval}
+        ServerAliveCountMax ${toString cfg.serverAliveCountMax}
         HashKnownHosts ${yn cfg.hashKnownHosts}
         UserKnownHostsFile ${cfg.userKnownHostsFile}
         ControlMaster ${cfg.controlMaster}

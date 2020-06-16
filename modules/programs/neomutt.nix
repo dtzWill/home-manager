@@ -38,6 +38,19 @@ let
     };
   };
 
+  sortOptions = [
+    "date"
+    "date-received"
+    "from"
+    "mailbox-order"
+    "score"
+    "size"
+    "spam"
+    "subject"
+    "threads"
+    "to"
+  ];
+
   bindModule = types.submodule {
     options = {
       map = mkOption {
@@ -211,18 +224,9 @@ in {
       };
 
       sort = mkOption {
-        type = types.enum [
-          "date"
-          "date-received"
-          "from"
-          "mailbox-order"
-          "score"
-          "size"
-          "spam"
-          "subject"
-          "threads"
-          "to"
-        ];
+        # allow users to choose any option from sortOptions, or any option prefixed with "reverse-"
+        type = types.enum
+          (sortOptions ++ (map (option: "reverse-" + option) sortOptions));
         default = "threads";
         description = "Sorting method on messages.";
       };
@@ -257,6 +261,10 @@ in {
         default = "";
         description = "Extra configuration appended to the end.";
       };
+    };
+
+    accounts.email.accounts = mkOption {
+      type = with types; attrsOf (submodule (import ./neomutt-accounts.nix));
     };
   };
 

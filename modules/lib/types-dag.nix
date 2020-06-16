@@ -7,16 +7,25 @@ let
   isDagEntry = e: isAttrs e && (e ? data) && (e ? after) && (e ? before);
 
   dagContentType = elemType:
-    types.submodule {
+    types.submodule ({ name, ... }: {
       options = {
         data = mkOption { type = elemType; };
         after = mkOption { type = with types; uniq (listOf str); };
         before = mkOption { type = with types; uniq (listOf str); };
       };
-    };
+      config = mkIf (elemType.name == "submodule") {
+        data._module.args.dagName = name;
+      };
+    });
 
-in {
+in rec {
   # A directed acyclic graph of some inner type.
+  #
+  # Note, if the element type is a submodule then the `name` argument
+  # will always be set to the string "data" since it picks up the
+  # internal structure of the DAG values. To give access to the
+  # "actual" attribute name a new submodule argument is provided with
+  # the name `dagName`.
   dagOf = elemType:
     let
       convertAllToDags = let
@@ -51,34 +60,40 @@ in {
         let padWidth = stringLength (toString (length list));
         in fixedWidthNumber padWidth i;
 
-      convertAllToDags = defs:
+      convertAll = loc: defs:
         let
-          convertAttrValue = n: v:
-            if isDagEntry v then v else dag.entryAnywhere v;
-
-          convertListValue = namePrefix: vs:
+          convertListValue = namePrefix: def:
             let
+              vs = def.value;
               pad = paddedIndexStr vs;
-              makeEntry = i: v:
-                nameValuePair "${namePrefix}.${pad i}" (dag.entryAnywhere v);
-            in listToAttrs (imap1 makeEntry vs);
+              makeEntry = i: v: nameValuePair "${namePrefix}.${pad i}" v;
+              warning = ''
+                In file ${def.file}
+                a list is being assigned to the option '${
+                  concatStringsSep "." loc
+                }'.
+                This will soon be an error due to the list form being deprecated.
+                Please use the attribute set form instead with DAG functions to
+                express the desired order of entries.
+              '';
+            in warn warning (listToAttrs (imap1 makeEntry vs));
 
-          convertValue = i: value:
-            if isList value then
-              convertListValue "unnamed-${paddedIndexStr defs i}" value
+          convertValue = i: def:
+            if isList def.value then
+              convertListValue "unnamed-${paddedIndexStr defs i}" def
             else
-              mapAttrs convertAttrValue value;
-        in imap1 (i: def: def // { value = convertValue i def.value; }) defs;
+              def.value;
+        in imap1 (i: def: def // { value = convertValue i def; }) defs;
 
-      attrEquivalent = types.attrsOf (dagContentType elemType);
+      dagType = dagOf elemType;
     in mkOptionType rec {
-      name = "dagOf";
-      description = "DAG of ${elemType.description}s";
-      check = x: isAttrs x || isList x;
-      merge = loc: defs: attrEquivalent.merge loc (convertAllToDags defs);
-      getSubOptions = prefix: elemType.getSubOptions (prefix ++ [ "<name>" ]);
-      getSubModules = elemType.getSubModules;
-      substSubModules = m: dagOf (elemType.substSubModules m);
+      name = "listOrDagOf";
+      description = "list or DAG of ${elemType.description}s";
+      check = x: isList x || dagType.check x;
+      merge = loc: defs: dagType.merge loc (convertAll loc defs);
+      getSubOptions = dagType.getSubOptions;
+      getSubModules = dagType.getSubModules;
+      substSubModules = m: listOrDagOf (elemType.substSubModules m);
       functor = (defaultFunctor name) // { wrapped = elemType; };
     };
 }

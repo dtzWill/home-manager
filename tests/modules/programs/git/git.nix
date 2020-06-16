@@ -15,8 +15,10 @@ let
     pkgs.substituteAll {
       src = path;
 
-      git_include_path =
-        pkgs.writeText "contents" (generators.toINI { } gitInclude);
+      deltaCommand = "${pkgs.gitAndTools.delta}/bin/delta";
+
+      git_include_path = pkgs.writeText "contents"
+        (builtins.readFile ./git-expected-include.conf);
     };
 
 in {
@@ -28,6 +30,7 @@ in {
         aliases = {
           a1 = "foo";
           a2 = "bar";
+          escapes = ''"\n	'';
         };
         extraConfig = {
           extra = {
@@ -55,6 +58,10 @@ in {
         userEmail = "user@example.org";
         userName = "John Doe";
         lfs.enable = true;
+        delta = {
+          enable = true;
+          options = [ "--dark" ];
+        };
       }
 
       {

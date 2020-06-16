@@ -43,7 +43,7 @@ in
         type = types.bool;
         default = false;
         description = ''
-          Symlink `vi` to `nvim` binary.
+          Symlink <command>vi</command> to <command>nvim</command> binary.
         '';
       };
 
@@ -51,7 +51,15 @@ in
         type = types.bool;
         default = false;
         description = ''
-          Symlink `vim` to `nvim` binary.
+          Symlink <command>vim</command> to <command>nvim</command> binary.
+        '';
+      };
+
+      vimdiffAlias = mkOption {
+        type = types.bool;
+        default = false;
+        description = ''
+          Alias <command>vimdiff</command> to <command>nvim -d</command>.
         '';
       };
 
@@ -203,5 +211,9 @@ in
 
       configure = cfg.configure // moduleConfigure;
     };
+
+    programs.bash.shellAliases = mkIf cfg.vimdiffAlias { vimdiff = "nvim -d"; };
+    programs.fish.shellAliases = mkIf cfg.vimdiffAlias { vimdiff = "nvim -d"; };
+    programs.zsh.shellAliases  = mkIf cfg.vimdiffAlias { vimdiff = "nvim -d"; };
   };
 }

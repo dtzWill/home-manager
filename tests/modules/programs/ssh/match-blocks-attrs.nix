@@ -12,9 +12,12 @@ with lib;
           proxyJump = "jump-host";
         };
 
+        ordered = hm.dag.entryAfter [ "xyz" ] { port = 1; };
+
         xyz = {
           identityFile = "file";
           serverAliveInterval = 60;
+          serverAliveCountMax = 10;
           localForwards = [{
             bind.port = 8080;
             host.address = "10.0.0.1";

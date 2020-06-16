@@ -35,6 +35,14 @@ let
     inactive-dim     = ${cfg.inactiveDim};
     opacity-rule     = ${toJSON cfg.opacityRule};
 
+    wintypes:
+    {
+      dock          = { shadow = ${toJSON (!cfg.noDockShadow)}; };
+      dnd           = { shadow = ${toJSON (!cfg.noDNDShadow)}; };
+      popup_menu    = { opacity = ${cfg.menuOpacity}; };
+      dropdown_menu = { opacity = ${cfg.menuOpacity}; };
+    };
+
     # other options
     backend = ${toJSON cfg.backend};
     vsync = ${toJSON cfg.vSync};
@@ -43,7 +51,7 @@ let
 
 in {
 
-  options.services.picom= {
+  options.services.picom = {
     enable = mkEnableOption "Picom X11 compositor";
 
     blur = mkOption {
@@ -66,6 +74,30 @@ in {
           <manvolnum>1</manvolnum>
         </citerefentry>
         man page for more examples.
+      '';
+    };
+
+    dbus = mkOption {
+      type = types.bool;
+      default = false;
+      description = ''
+        Enable remote control via D-BUS.
+      '';
+    };
+
+    maxBrightness = mkOption {
+      type = types.float;
+      default = 1.0;
+      description = ''
+        Dim bright windows so their brightness doesn’t exceed this set value, 1.0 disables.
+      '';
+    };
+
+    experimentalBackends = mkOption {
+      type = types.bool;
+      default = false;
+      description = ''
+        Whether to use the new experimental backends.
       '';
     };
 
@@ -151,6 +183,22 @@ in {
       '';
     };
 
+    noDockShadow = mkOption {
+      type = types.bool;
+      default = true;
+      description = ''
+        Avoid shadow on docks.
+      '';
+    };
+
+    noDNDShadow = mkOption {
+      type = types.bool;
+      default = true;
+      description = ''
+        Avoid shadow on drag-and-drop windows.
+      '';
+    };
+
     activeOpacity = mkOption {
       type = types.str;
       default = "1.0";
@@ -178,6 +226,15 @@ in {
       '';
     };
 
+    menuOpacity = mkOption {
+      type = types.str;
+      default = "1.0";
+      example = "0.8";
+      description = ''
+        Opacity of dropdown and popup menu.
+      '';
+    };
+
     opacityRule = mkOption {
       type = types.listOf types.str;
       default = [ ];
@@ -200,40 +257,12 @@ in {
         Backend to use: <literal>glx</literal> or <literal>xrender</literal>.
       '';
     };
-    experimentalBackends = mkOption {
-      type = types.bool;
-      default = false;
-      description = ''
-        Use experimental backends.
-      '';
-    };
-    dbus = mkOption {
-      type = types.bool;
-      default = false;
-      description = ''
-        Enable remote control via D-BUS.
-      '';
-    };
-    maxBrightness = mkOption {
-      type = types.float;
-      default = 1.0;
-      description = ''
-        Dim bright windows so their brightness doesn’t exceed this set value, 1.0 disables.
-      '';
-    };
 
     vSync = mkOption {
-      type = types.either types.str types.bool; # new version makes this bool
-      default = "none";
-      example = "opengl-swc";
+      type = types.bool;
+      default = false;
       description = ''
-        Enable vertical synchronization using the specified method.
-        See the
-        <citerefentry>
-          <refentrytitle>picom</refentrytitle>
-          <manvolnum>1</manvolnum>
-        </citerefentry>
-        man page for available methods.
+        Enable vertical synchronization.
       '';
     };
 
@@ -252,7 +281,7 @@ in {
       defaultText = literalExample "pkgs.picom";
       example = literalExample "pkgs.picom";
       description = ''
-        Picom derivation to use.
+        picom derivation to use.
       '';
     };
 
@@ -264,7 +293,7 @@ in {
         dbe = true;
       '';
       description = ''
-        Additional picom configuration.
+        Additional Picom configuration.
       '';
     };
   };
