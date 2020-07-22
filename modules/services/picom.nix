@@ -313,12 +313,12 @@ in {
       Service = {
         ExecStart = lib.concatStringsSep " " ([
           "${cfg.package}/bin/picom"
-          "--config" configFile
-          "--max-brightness" (builtins.toString cfg.maxBrightness)
-        ]
-        ++ lib.optional cfg.experimentalBackends "--experimental-backends"
-        ++ lib.optional cfg.dbus "--dbus"
-        );
+          "--config"
+          configFile
+          "--max-brightness"
+          (builtins.toString cfg.maxBrightness)
+        ] ++ lib.optional cfg.experimentalBackends "--experimental-backends"
+          ++ lib.optional cfg.dbus "--dbus");
         Restart = "always";
         RestartSec = 3;
       };
