@@ -56,6 +56,7 @@ import nmt {
     ./modules/programs/ne
     ./modules/programs/neomutt
     ./modules/programs/newsboat
+    ./modules/programs/nushell
     ./modules/programs/qutebrowser
     ./modules/programs/readline
     ./modules/programs/powerline-go
@@ -74,7 +75,9 @@ import nmt {
     ./modules/misc/xsession
     ./modules/programs/abook
     ./modules/programs/autorandr
+    ./modules/services/dropbox
     ./modules/services/emacs
+    ./modules/services/dropbox
     ./modules/programs/firefox
     ./modules/programs/getmail
     ./modules/services/lieer
